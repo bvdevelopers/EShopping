@@ -31,7 +31,7 @@ namespace EShopping.Admin
             {
                 // Authentication successful
                 
-                Response.Redirect("Dashboard.aspx"); // Redirect to home page or dashboard
+                Response.Redirect("Products.aspx"); // Redirect to home page or dashboard
             }
             else
             {

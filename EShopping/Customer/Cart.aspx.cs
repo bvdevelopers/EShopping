@@ -1,6 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Security.Cryptography;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -8,8 +7,8 @@ namespace EShopping.Customer
 {
     public partial class Cart : System.Web.UI.Page
     {
-        MySqlConnection connection;
-        int cid = 2;
+        private MySqlConnection connection;
+        private int cid = 2;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -25,7 +24,7 @@ namespace EShopping.Customer
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 connection.Open();
-                string query = "SELECT p.* FROM purchase pu JOIN products p ON pu.pid = p.pid WHERE pu.cid = @cid AND status=0;";
+                string query = "SELECT p.*, COUNT(pu.pid) as quantity FROM purchase pu JOIN products p ON pu.pid = p.pid WHERE pu.cid = @cid AND pu.status=0 GROUP BY pu.pid;";
                 MySqlCommand command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@cid", cid);
 
@@ -39,8 +38,9 @@ namespace EShopping.Customer
                     {
                         string productName = reader.GetString("name");
                         int pid = reader.GetInt32("pid");
-                        string price = reader.GetString("price");
-                        string productCardHtml = $@"<tr><td>{productName}</td><td>{price}</td><td><input type='number' name='qnty_{pid}' min='1' value='1' /></td></tr>";
+                        decimal price = reader.GetDecimal("price");
+                        int quantity = reader.GetInt32("quantity");
+                        string productCardHtml = $@"<tr><td>{productName}</td><td>{price:C}</td><td><input type='number' name='qnty_{pid}' min='1' value='{quantity}' /></td></tr>";
                         LiteralControl productCard = new LiteralControl(productCardHtml);
                         productContainer.Controls.Add(productCard);
                     }
@@ -50,9 +50,6 @@ namespace EShopping.Customer
                     productContainer.Controls.Add(pmc);
                 }
             }
-
-         
-          
         }
 
         protected void CalculateTotal(object sender, EventArgs e)
@@ -84,31 +81,24 @@ namespace EShopping.Customer
 
                         decimal productTotal = price * quantity;
                         totalAmount += productTotal;
-                        connection.Close();
-
                     }
-                }
-                string connectionString2 = "server=localhost;user=root;password=root;database=eshopping;";
-                using (MySqlConnection connection = new MySqlConnection(connectionString2))
-                {
-                    connection.Open();
-                    Random random = new Random();
-                 
-                    int prgrpid = random.Next(1000, 9999);
-                    string query2 = "update purchase set status=1,prgrpid=@prgrpid where status=0 AND cid=@cid";
-                    MySqlCommand cmd = new MySqlCommand(query2, connection);
-                    cmd.Parameters.AddWithValue("@prgrpid", prgrpid);
-                    cmd.Parameters.AddWithValue("@cid", cid);
-                    
-                    cmd.ExecuteNonQuery();
-                    connection.Close();
                 }
             }
 
-            totalAmountLabel.Text = $"Total Amount: {totalAmount:C}";
-           
-            //Response.Redirect(Request.Url.AbsoluteUri);
+            string updateQuery = "UPDATE purchase SET status = 1, prgrpid = @prgrpid WHERE status = 0 AND cid = @cid";
+            string connectionString2 = "server=localhost;user=root;password=root;database=eshopping;";
+            using (MySqlConnection connection = new MySqlConnection(connectionString2))
+            {
+                connection.Open();
+                Random random = new Random();
+                int prgrpid = random.Next(1000, 9999);
+                MySqlCommand cmd = new MySqlCommand(updateQuery, connection);
+                cmd.Parameters.AddWithValue("@prgrpid", prgrpid);
+                cmd.Parameters.AddWithValue("@cid", cid);
+                cmd.ExecuteNonQuery();
+            }
 
+            totalAmountLabel.Text = $"Total Amount: {totalAmount:C}";
         }
     }
 }
