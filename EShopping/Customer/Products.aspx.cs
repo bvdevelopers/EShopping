@@ -13,7 +13,8 @@ namespace EShopping.Customer
     public partial class Products : System.Web.UI.Page
     {
         MySqlConnection connection;
-        int cid = 2;
+        int cid = 1;
+        //cid = (int)Session["cid"];
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -98,7 +99,7 @@ namespace EShopping.Customer
             connection.Open();
             string query = "INSERT INTO purchase (cid, pid, status) VALUES (@cid, @productId, @status)";
             MySqlCommand command = new MySqlCommand(query, connection);
-            command.Parameters.AddWithValue("@cid", cid);
+            command.Parameters.AddWithValue("@cid", (int)Session["cid"]);
             command.Parameters.AddWithValue("@productId", productId);
             command.Parameters.AddWithValue("@status", 0);
             command.ExecuteNonQuery();

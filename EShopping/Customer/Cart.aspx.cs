@@ -26,7 +26,7 @@ namespace EShopping.Customer
                 connection.Open();
                 string query = "SELECT p.*, COUNT(pu.pid) as quantity FROM purchase pu JOIN products p ON pu.pid = p.pid WHERE pu.cid = @cid AND pu.status=0 GROUP BY pu.pid;";
                 MySqlCommand command = new MySqlCommand(query, connection);
-                command.Parameters.AddWithValue("@cid", cid);
+                command.Parameters.AddWithValue("@cid", (int)Session["cid"]);
 
                 using (MySqlDataReader reader = command.ExecuteReader())
                 {
@@ -94,7 +94,7 @@ namespace EShopping.Customer
                 int prgrpid = random.Next(1000, 9999);
                 MySqlCommand cmd = new MySqlCommand(updateQuery, connection);
                 cmd.Parameters.AddWithValue("@prgrpid", prgrpid);
-                cmd.Parameters.AddWithValue("@cid", cid);
+                cmd.Parameters.AddWithValue("@cid", (int)Session["cid"]);
                 cmd.ExecuteNonQuery();
             }
 

@@ -11,6 +11,7 @@ namespace EShopping
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            Response.Redirect("Auth/Signin.aspx"); // Redirect to home page or dashboard
 
         }
     }

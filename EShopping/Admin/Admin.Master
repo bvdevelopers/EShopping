@@ -6,7 +6,7 @@
 <head runat="server">
         <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %> - My ASP.NET Application</title>
+    <title><%: Page.Title %></title>
     
     <script>
     function signOut() {
@@ -82,7 +82,7 @@
          </asp:ContentPlaceHolder>
          <hr />
          <footer>
-             <p>&copy; <%: DateTime.Now.Year %> - My ASP.NET Application</p>
+             <p>&copy; <%: DateTime.Now.Year %> - E-SHOPPING</p>
          </footer>
      </div>
  </form>

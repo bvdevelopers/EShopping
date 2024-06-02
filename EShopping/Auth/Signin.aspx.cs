@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Web.UI;
+using System.Security.Cryptography;
 
 namespace EShopping.Auth
 {
@@ -24,8 +25,27 @@ namespace EShopping.Auth
 
             if (ValidateUser(username, password))
             {
+                string connString = "server=localhost;user=root;password=root;database=eshopping;";
+                int cid=1;
+                using (MySqlConnection conn = new MySqlConnection(connString))
+                {
+                    try
+                    {
+                        conn.Open();
+                        string query = "SELECT cid FROM customer_data WHERE email = @Email AND password = @Password";
+                        MySqlCommand cmd = new MySqlCommand(query, conn);
+                        cmd.Parameters.AddWithValue("@Email", username);
+                        cmd.Parameters.AddWithValue("@Password", password);
+                        cid = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exception
+                        Response.Write("<script>alert('Error connecting to database.');</script>");
+                    }
+                }
                 // Authentication successful
-                Session["username"] = username; // Store user session
+                Session["cid"] = cid;
                 Response.Redirect("../Customer/Products.aspx"); // Redirect to home page or dashboard
             }
             else
